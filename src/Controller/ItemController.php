@@ -16,30 +16,38 @@ use Symfony\Component\HttpFoundation\Response;
 class ItemController extends AbstractController
 {
     /**
+     * @var ItemService
+     */
+    public $itemService;
+
+    /**
+     * Constructor class
+     *
+     * @access public
+     * @param ItemService $itemService
+     */
+    public function __construct(ItemService $itemService)
+    {
+        $this->itemService = $itemService;
+    }
+
+    /**
      * @Route("/item", name="item_list", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
     public function list(): JsonResponse
     {
-        $items = $this->getDoctrine()->getRepository(Item::class)->findBy(['user' => $this->getUser()]);
-
-        $allItems = [];
-        foreach ($items as $item) {
-            $oneItem['id'] = $item->getId();
-            $oneItem['data'] = $item->getData();
-            $oneItem['created_at'] = $item->getCreatedAt();
-            $oneItem['updated_at'] = $item->getUpdatedAt();
-            $allItems[] = $oneItem;
-        }
-
-        return $this->json($allItems);
+        $items = $this->itemService->getAll($this->getUser());
+        return $this->json($items);
     }
 
     /**
      * @Route("/item", name="item_create", methods={"POST"})
      * @IsGranted("ROLE_USER")
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function create(Request $request, ItemService $itemService)
+    public function create(Request $request)
     {
         $data = $request->get('data');
 
@@ -47,7 +55,30 @@ class ItemController extends AbstractController
             return $this->json(['error' => 'No data parameter']);
         }
 
-        $itemService->create($this->getUser(), $data);
+        $this->itemService->create($this->getUser(), $data);
+
+        return $this->json([]);
+    }
+
+    /**
+     * @Route("/item/{id}", name="item_update", methods={"PUT"})
+     * @IsGranted("ROLE_USER")
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, int $id)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            return $this->json(['error' => 'No data parameter']);
+        }
+
+        $return = $this->itemService->update(array_merge($data, ['id' => $id]));
+        if ($return === null) {
+            return $this->json(['error' => 'No item found'], Response::HTTP_BAD_REQUEST);
+        }
 
         return $this->json([]);
     }
@@ -55,22 +86,19 @@ class ItemController extends AbstractController
     /**
      * @Route("/item/{id}", name="items_delete", methods={"DELETE"})
      * @IsGranted("ROLE_USER")
+     * @param int $id
+     * @return JsonResponse
      */
-    public function delete(Request $request, int $id)
+    public function delete(int $id)
     {
         if (empty($id)) {
             return $this->json(['error' => 'No data parameter'], Response::HTTP_BAD_REQUEST);
         }
 
-        $item = $this->getDoctrine()->getRepository(Item::class)->find($id);
-
-        if ($item === null) {
+        $return = $this->itemService->delete($id);
+        if ($return === null) {
             return $this->json(['error' => 'No item'], Response::HTTP_BAD_REQUEST);
         }
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($item);
-        $manager->flush();
 
         return $this->json([]);
     }
