@@ -1,0 +1,175 @@
+{
+	"info": {
+		"_postman_id": "61b35858-b265-494e-b019-e0377c4352bc",
+		"name": "PHP test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"john\",\n    \"password\": \"maxsecure\"\n}"
+				},
+				"url": {
+					"raw": "http://secure-storage.localhost:8000/login",
+					"protocol": "http",
+					"host": [
+						"secure-storage",
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"john\",\n    \"password\": \"maxsecure\"\n}"
+				},
+				"url": {
+					"raw": "http://secure-storage.localhost:8000/logout",
+					"protocol": "http",
+					"host": [
+						"secure-storage",
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Items",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://secure-storage.localhost:8000/item",
+					"protocol": "http",
+					"host": [
+						"secure-storage",
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data",
+							"value": "new item secret",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://secure-storage.localhost:8000/item",
+					"protocol": "http",
+					"host": [
+						"secure-storage",
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "new secret",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://secure-storage.localhost:8000/item",
+					"protocol": "http",
+					"host": [
+						"secure-storage",
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Item",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://secure-storage.localhost:8000/item/1",
+					"protocol": "http",
+					"host": [
+						"secure-storage",
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"item",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
