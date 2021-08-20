@@ -8,6 +8,7 @@ use App\Service\ItemService;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class ItemServiceTest extends TestCase
 {
@@ -15,6 +16,11 @@ class ItemServiceTest extends TestCase
      * @var EntityManagerInterface|MockObject
      */
     private $entityManager;
+
+    /**
+     * @var CacheInterface|MockObject
+     */
+    private $cache;
 
     /**
      * @var ItemService
@@ -25,8 +31,9 @@ class ItemServiceTest extends TestCase
     {
         /** @var EntityManagerInterface */
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->cache = $this->createMock(CacheInterface::class);
 
-        $this->itemService = new ItemService($this->entityManager);
+        $this->itemService = new ItemService($this->entityManager, $this->cache);
     }
 
     public function testCreate(): void
