@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Item;
 use App\Service\ItemService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,7 +38,7 @@ class ItemController extends AbstractController
      */
     public function list(): JsonResponse
     {
-        $items = $this->itemService->getAll($this->getUser());
+        $items = $this->itemService->getAll();
         return $this->json($items);
     }
 
@@ -46,6 +47,7 @@ class ItemController extends AbstractController
      * @IsGranted("ROLE_USER")
      * @param Request $request
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function create(Request $request)
     {
@@ -55,7 +57,7 @@ class ItemController extends AbstractController
             return $this->json(['error' => 'No data parameter']);
         }
 
-        $this->itemService->create($this->getUser(), $data);
+        $this->itemService->create($data);
 
         return $this->json([]);
     }
@@ -66,6 +68,7 @@ class ItemController extends AbstractController
      * @param Request $request
      * @param int $id
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function update(Request $request, int $id)
     {
@@ -88,6 +91,7 @@ class ItemController extends AbstractController
      * @IsGranted("ROLE_USER")
      * @param int $id
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function delete(int $id)
     {

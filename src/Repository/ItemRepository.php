@@ -23,7 +23,6 @@ class ItemRepository extends ServiceEntityRepository
 
     public function getItems($user)
     {
-
         $users = $this->createQueryBuilder('u')
             ->select('u.id', 'u.data', 'u.createdAt', 'u.updatedAt')
             ->where('u.user = :user')

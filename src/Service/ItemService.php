@@ -3,62 +3,72 @@
 namespace App\Service;
 
 use App\Entity\Item;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Security\Core\Security;
 
 class ItemService
 {
     private $entityManager;
     private $cache;
+    private $security;
 
     /**
      * ItemService constructor.
      * @param EntityManagerInterface $entityManager
      * @param CacheInterface $cache
+     * @param Security $security
      */
-    public function __construct(EntityManagerInterface $entityManager, CacheInterface $cache)
+    public function __construct(EntityManagerInterface $entityManager, CacheInterface $cache, Security $security)
     {
         $this->entityManager = $entityManager;
         $this->cache = $cache;
+        $this->security = $security;
     }
 
     /**
-     * @param User $user
      * @return array
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
-    public function getAll(User $user): array
+    public function getAll(): array
     {
-        $itemsCached = $this->cache->get('items.'.$user->getId(), function (ItemInterface $item, $user) {
-            $items = $this->entityManager->getRepository(Item::class)->getItems($user);
+        $itemsCached = $this->cache->get('items.' . $this->security->getUser()->getId(), function (ItemInterface $item) {
+            $items = $this->entityManager->getRepository(Item::class)->getItems($this->security->getUser());
             return $items;
         });
+
         return $itemsCached;
     }
 
     /**
-     * @param User $user
      * @param string $data
+     * @throws InvalidArgumentException
      */
-    public function create(User $user, string $data): void
+    public function create(string $data): void
     {
         $item = new Item();
-        $item->setUser($user);
+        $item->setUser($this->security->getUser());
         $item->setData($data);
 
         $this->entityManager->persist($item);
         $this->entityManager->flush();
+
+        $this->cache->delete('items.' . $this->security->getUser()->getId());
     }
 
     /**
      * @param array $data
-     * @return object
+     * @return object|null
+     * @throws InvalidArgumentException
      */
-    public function update(array $data): object
+    public function update(array $data): ?object
     {
-        $item = $this->entityManager->getRepository(Item::class)->find($data['id']);
+        $item = $this->entityManager->getRepository(Item::class)->findOneBy([
+            'id' => $data['id'],
+            'user' => $this->security->getUser(),
+        ]);
 
         if ($item === null) {
             return null;
@@ -67,16 +77,22 @@ class ItemService
         $item->setData($data['data']);
         $this->entityManager->flush();
 
+        $this->cache->delete('items.' . $this->security->getUser()->getId());
+
         return $item;
     }
 
     /**
      * @param int $id
-     * @return bool
+     * @return bool|null
+     * @throws InvalidArgumentException
      */
-    public function delete(int $id): bool
+    public function delete(int $id): ?bool
     {
-        $item = $this->entityManager->getRepository(Item::class)->find($id);
+        $item = $this->entityManager->getRepository(Item::class)->findOneBy([
+            'id' => $id,
+            'user' => $this->security->getUser(),
+        ]);
 
         if ($item === null) {
             return null;
@@ -86,25 +102,8 @@ class ItemService
         $manager->remove($item);
         $manager->flush();
 
+        $this->cache->delete('items.' . $this->security->getUser()->getId());
+
         return true;
-    }
-
-    /**
-     * @param $items
-     * @return array
-     */
-    public function buildItemList($items)
-    {
-        $allItems = [];
-
-        foreach ($items as $item) {
-            $oneItem['id'] = $item->getId();
-            $oneItem['data'] = $item->getData();
-            $oneItem['created_at'] = $item->getCreatedAt();
-            $oneItem['updated_at'] = $item->getUpdatedAt();
-            $allItems[] = $oneItem;
-        }
-
-        return $allItems;
     }
 }

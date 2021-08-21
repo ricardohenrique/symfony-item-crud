@@ -1,4 +1,5 @@
 security:
+    enable_authenticator_manager: true
     providers:
         app_user_provider:
             entity:
@@ -9,7 +10,6 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
             lazy: true
             provider: app_user_provider
             logout:
