@@ -99,7 +99,7 @@ Response body (Status Code 200):
 
 ### POST /item
 
-Example: /api/products
+Example: /item
 
 #### Input (form-data):
 
