@@ -11,8 +11,19 @@ use Symfony\Component\Security\Core\Security;
 
 class ItemService
 {
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
+
+    /**
+     * @var CacheInterface
+     */
     private $cache;
+
+    /**
+     * @var Security
+     */
     private $security;
 
     /**
@@ -34,11 +45,10 @@ class ItemService
      */
     public function getAll(): array
     {
-        $itemsCached = $this->cache->get('items.' . $this->security->getUser()->getId(), function (ItemInterface $item) {
-            $items = $this->entityManager->getRepository(Item::class)->getItems($this->security->getUser());
-            return $items;
+        $itemsCached = $this->cache->get('items.user.' . $this->security->getUser()->getId(), function (ItemInterface $item) {
+            $items = $this->entityManager->getRepository(Item::class)->findBy(['user' => $this->security->getUser()]);
+            return $this->itemsToArray($items);
         });
-
         return $itemsCached;
     }
 
@@ -55,7 +65,7 @@ class ItemService
         $this->entityManager->persist($item);
         $this->entityManager->flush();
 
-        $this->cache->delete('items.' . $this->security->getUser()->getId());
+        $this->cache->delete('items.user.' . $this->security->getUser()->getId());
     }
 
     /**
@@ -77,7 +87,7 @@ class ItemService
         $item->setData($data['data']);
         $this->entityManager->flush();
 
-        $this->cache->delete('items.' . $this->security->getUser()->getId());
+        $this->cache->delete('items.user.' . $this->security->getUser()->getId());
 
         return $item;
     }
@@ -102,8 +112,28 @@ class ItemService
         $manager->remove($item);
         $manager->flush();
 
-        $this->cache->delete('items.' . $this->security->getUser()->getId());
+        $this->cache->delete('items.user.' . $this->security->getUser()->getId());
 
         return true;
+    }
+
+    /**
+     * @param array $items
+     * @return array
+     */
+    public function itemsToArray(array $items): array
+    {
+        $data = [];
+
+        foreach ($items as $item) {
+            $data[] = [
+                'id' => $item->getId(),
+                'data' => $item->getData(),
+                'created_at' => $item->getCreatedAt(),
+                'updated_at' => $item->getUpdatedAt()
+            ];
+        }
+
+        return $data;
     }
 }

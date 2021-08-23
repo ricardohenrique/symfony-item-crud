@@ -15,12 +15,16 @@ use Doctrine\ORM\Query;
  */
 class ItemRepository extends ServiceEntityRepository
 {
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Item::class);
     }
 
-
+    /**
+     * @param $user
+     * @return mixed
+     */
     public function getItems($user)
     {
         $users = $this->createQueryBuilder('u')

@@ -57,6 +57,22 @@ class ItemControllerTest extends WebTestCase
         $this->assertEquals('[]', $client->getResponse()->getContent());
     }
 
+    public function testDeleteItem()
+    {
+        $data = 'Item to be deleted';
+        $client = $this->initItem($data);
+        $client->request('GET', '/item');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString($data, $client->getResponse()->getContent());
+
+        $item = json_decode($client->getResponse()->getContent())[0];
+        $client->request('DELETE', '/item/'.$item->id);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertEquals('[]', $client->getResponse()->getContent());
+    }
+
     private function initItem($data)
     {
         $client = static::createClient();

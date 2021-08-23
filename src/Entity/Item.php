@@ -6,10 +6,12 @@ use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ItemRepository;
+use App\EventListener\ItemEventListener;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=ItemRepository::class)
+ * @ORM\EntityListeners({"App\EventListener\ItemEventListener"})
  * @ORM\HasLifecycleCallbacks
  */
 class Item
