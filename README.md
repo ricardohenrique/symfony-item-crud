@@ -35,9 +35,9 @@ ENCODE_KEY=b12d770dd4017b776506f2f9942718
 | ------ | ------ | ------ |
 | POST | [/login](#post-login) | Login to use the API |
 | GET | [/item](#get-item) | List all items related to your user |
-| POST | [/item](#item-post) | Create a new Item |
-| PUT | [/item/:item_id](#item-put) | Update a Item |
-| DELETE | [/item/:item_id](#item-delete) | Delete a Item |
+| POST | [/item](#post-item) | Create a new Item |
+| PUT | [/item/:item_id](#put-itemitem_id) | Update a Item |
+| DELETE | [/item/:item_id](#put-itemitem_id) | Delete a Item |
 
 
 ### POST /login
